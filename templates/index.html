@@ -14,6 +14,7 @@
         h1 {
             text-align: center;
             color: #333;
+            margin-top: 60px; /* Add margin to ensure space below the banner */
         }
         /* Table Styles */
         table {
@@ -89,9 +90,29 @@
         .money-effect {
             animation: money-effect 1.5s ease-in-out;
         }
+        /* Dropdown Banner */
+        @keyframes dropdown {
+            0% { top: -50px; opacity: 0; }
+            100% { top: 0; opacity: 1; }
+        }
+        .dropdown-banner {
+            position: fixed;
+            top: -50px;
+            left: 0;
+            right: 0;
+            background-color: #46c35f;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 18px;
+            display: none;
+            z-index: 1000;
+            animation: dropdown 0.5s forwards;
+        }
     </style>
 </head>
 <body>
+    <br>
     <h1>Live Calls</h1>
     <div class="counter">
         Current Calls: <span id="currentResponsesCount">0</span><br>
@@ -103,6 +124,7 @@
         End Date: <input type="date" id="endDate">
         <button id="filterBtn" onclick="fetchCDRCost()">Filter</button>
     </div>
+    <div class="dropdown-banner" id="dropdownBanner"></div>
     <table id="callsTable">
         <thead>
             <tr>
@@ -188,19 +210,31 @@
                     alert(data.error);
                 } else {
                     const totalCostElement = document.getElementById('totalCost');
-                    if (parseFloat(data.cost) !== lastTotalCost) {
-                        lastTotalCost = parseFloat(data.cost);
+                    const newTotalCost = parseFloat(data.cost);
+                    if (newTotalCost !== lastTotalCost) {
+                        const difference = newTotalCost - lastTotalCost;
+                        lastTotalCost = newTotalCost;
                         totalCostElement.textContent = data.cost;
                         totalCostElement.classList.add('money-effect');
                         setTimeout(() => {
                             totalCostElement.classList.remove('money-effect');
                         }, 1500);
+                        showDropdownBanner(`Balance Added! $${difference.toFixed(2)}`);
                         playUpdateNotificationSound();
                     }
                 }
             } catch (error) {
                 console.error('Error fetching CDR cost:', error);
             }
+        }
+
+        function showDropdownBanner(message) {
+            const banner = document.getElementById('dropdownBanner');
+            banner.textContent = message;
+            banner.style.display = 'block';
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 6000);
         }
 
         function playNotificationSound() {
@@ -229,7 +263,7 @@
         // Click the filter button every 1 minute to refresh the total cost
         setInterval(() => {
             document.getElementById('filterBtn').click();
-        }, 60000);
+        }, 15000);
 
         // Initial fetch
         fetchLiveCalls();
