@@ -1,108 +1,272 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم للمكالمات</title>
+    <title>Live Calls</title>
     <style>
+        /* General Styles */
         body {
             font-family: Arial, sans-serif;
+            margin: 20px;
             background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
             color: #333;
-            direction: rtl;
-            text-align: right;
-            margin: 0;
-            padding: 0;
+            margin-top: 60px; /* Add margin to ensure space below the banner */
         }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-        main {
-            padding: 20px;
-        }
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .card {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 200px;
-        }
-        .filters {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .filters label, .filters input, .filters button {
-            margin: 0 10px;
-        }
-        .calls-table table {
+        /* Table Styles */
+        table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .calls-table th, .calls-table td {
-            padding: 10px;
+        th, td {
             border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
         }
-        .calls-table th {
-            background-color: #f4f4f4;
+        th {
+            background-color: #f2f2f2;
         }
-        .calls-table tr:nth-child(even) {
-            background-color: #f9f9f9;
+        /* Counters and Notifications */
+        .counter {
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .counter span {
+            font-weight: bold;
+            color: #036c11;
+        }
+        /* Notification Button */
+        #playSoundBtn {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #036c11;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        #playSoundBtn:hover {
+            background-color: #0056b3;
+        }
+        /* Date Filter */
+        .date-filter {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .date-filter input {
+            padding: 5px;
+            margin: 5px;
+        }
+        .date-filter button {
+            padding: 5px 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            border-radius: 4px;
+        }
+        .date-filter button:hover {
+            background-color: #0056b3;
+        }
+        /* Money Effect */
+        @keyframes money-effect {
+            0% { color: #007bff; transform: scale(1); }
+            50% { color: #28a745; transform: scale(1.5); }
+            100% { color: #007bff; transform: scale(1); }
+        }
+        .money-effect {
+            animation: money-effect 1.5s ease-in-out;
+        }
+        /* Dropdown Banner */
+        @keyframes dropdown {
+            0% { top: -50px; opacity: 0; }
+            100% { top: 0; opacity: 1; }
+        }
+        .dropdown-banner {
+            position: fixed;
+            top: -50px;
+            left: 0;
+            right: 0;
+            background-color: #46c35f;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 18px;
+            display: none;
+            z-index: 1000;
+            animation: dropdown 0.5s forwards;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>لوحة التحكم للمكالمات</h1>
-    </header>
-    <main>
-        <section class="stats">
-            <div class="card">
-                <h2>إجمالي المكالمات</h2>
-                <p>15</p>
-            </div>
-            <div class="card">
-                <h2>التكلفة الإجمالية</h2>
-                <p>$49.3570</p>
-            </div>
-        </section>
-        <section class="filters">
-            <label for="start-date">تاريخ البدء:</label>
-            <input type="date" id="start-date">
-            <label for="end-date">تاريخ الانتهاء:</label>
-            <input type="date" id="end-date">
-            <button>تصفية</button>
-        </section>
-        <section class="calls-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>المدى</th>
-                        <th>رقم أ</th>
-                        <th>رقم ب</th>
-                        <th>مفتاح الاتصال</th>
-                        <th>المدة</th>
-                        <th>اسم الوجهة أ</th>
-                        <th>اسم الوجهة ب</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- بيانات المكالمات ستضاف هنا -->
-                </tbody>
-            </table>
-        </section>
-    </main>
+    <br>
+    <h1>Live Calls</h1>
+    <div class="counter">
+        Current Calls: <span id="currentResponsesCount">0</span><br>
+        Total Calls: <span id="totalResponsesCount">0</span><br>
+        Total Cost: $<span id="totalCost">0</span>
+    </div>
+    <div class="date-filter">
+        Start Date: <input type="date" id="startDate">
+        End Date: <input type="date" id="endDate">
+        <button id="filterBtn" onclick="fetchCDRCost()">Filter</button>
+    </div>
+    <div class="dropdown-banner" id="dropdownBanner"></div>
+    <table id="callsTable">
+        <thead>
+            <tr>
+                <th>Range</th>
+                <th>A Number</th>
+                <th>B Number</th>
+                <th>Call Key</th>
+                <th>Duration</th>
+                <th>A Subdestination Name</th>
+                <th>B Subdestination Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+    <audio id="notificationSound" src="{{ url_for('static', filename='notification.mp3') }}" preload="auto"></audio>
+    <audio id="updateNotificationSound" src="{{ url_for('static', filename='notification1.mp3') }}" preload="auto"></audio>
+    <script>
+        let previousDataKeys = new Set();
+        let totalResponsesCount = 0;
+        let lastTotalCost = 0;
+
+        async function fetchLiveCalls() {
+            try {
+                const response = await fetch('/live_calls');
+                const data = await response.json();
+                const newCalls = data.filter(call => !previousDataKeys.has(call.call_key));
+
+                const tableBody = document.getElementById('callsTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = ''; // Clear previous data
+
+                data.forEach(call => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${call.range}</td>
+                        <td>${call.a_number}</td>
+                        <td>${call.b_number}</td>
+                        <td>${call.call_key}</td>
+                        <td>${call.duration}</td>
+                        <td>${call.a_subdestination_name}</td>
+                        <td>${call.b_subdestination_name}</td>
+                    `;
+                    tableBody.appendChild(row);
+                    previousDataKeys.add(call.call_key);
+                });
+
+                // Update the counters
+                document.getElementById('currentResponsesCount').textContent = data.length;
+                totalResponsesCount += newCalls.length;
+                document.getElementById('totalResponsesCount').textContent = totalResponsesCount;
+
+                if (newCalls.length > 0) {
+                    playNotificationSound();
+                }
+            } catch (error) {
+                console.error('Error fetching live calls:', error);
+            }
+        }
+
+        async function fetchCDRCost() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates.');
+                return;
+            }
+            const filterData = {
+                "a_number": "",
+                "end_date": endDate + "T23:59:59.000Z",
+                "start_date": startDate + "T00:00:00.000Z"
+            };
+            try {
+                const response = await fetch('/cdr_cost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(filterData)
+                });
+                const data = await response.json();
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    const totalCostElement = document.getElementById('totalCost');
+                    const newTotalCost = parseFloat(data.cost);
+                    if (newTotalCost !== lastTotalCost) {
+                        const difference = newTotalCost - lastTotalCost;
+                        lastTotalCost = newTotalCost;
+                        totalCostElement.textContent = data.cost;
+                        totalCostElement.classList.add('money-effect');
+                        setTimeout(() => {
+                            totalCostElement.classList.remove('money-effect');
+                        }, 1500);
+                        showDropdownBanner(`Balance Added! $${difference.toFixed(2)}`);
+                        playUpdateNotificationSound();
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching CDR cost:', error);
+            }
+        }
+
+        function showDropdownBanner(message) {
+            const banner = document.getElementById('dropdownBanner');
+            banner.textContent = message;
+            banner.style.display = 'block';
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 6000);
+        }
+
+        function playNotificationSound() {
+            const sound = document.getElementById('notificationSound');
+            sound.play().then(() => {
+                console.log('Notification sound played for new calls');
+            }).catch(error => {
+                console.error('Error playing notification sound for new calls:', error);
+            });
+        }
+
+        function playUpdateNotificationSound() {
+            const sound = document.getElementById('updateNotificationSound');
+            sound.play().then(() => {
+                console.log('Update notification sound played for total cost change');
+            }).catch(error => {
+                console.error('Error playing update notification sound for total cost change:', error);
+            });
+        }
+
+        // Fetch data every 5 seconds
+        setInterval(() => {
+            fetchLiveCalls();
+        }, 500);
+
+        // Click the filter button every 1 minute to refresh the total cost
+        setInterval(() => {
+            document.getElementById('filterBtn').click();
+        }, 15000);
+
+        // Initial fetch
+        fetchLiveCalls();
+    </script>
 </body>
 </html>
